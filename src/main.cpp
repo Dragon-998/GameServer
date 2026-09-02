@@ -1,7 +1,3 @@
-﻿// GameServer.cpp: 定义应用程序的入口点。
-//
-
-#include "GameServer.h"
 #include "Dispatcher.h"
 #include "Message.h"
 #include "LoginHandler.h"
@@ -9,6 +5,7 @@
 
 #include <unordered_map>
 #include <memory>
+#include <iostream>
 
 int main()
 {
@@ -20,10 +17,10 @@ int main()
 	LoginHandler loginHandler;
 	dispatcher.registerHandler(1001, [&loginHandler](const Message& message) {
 		loginHandler.Handler(message);
-	});
+		});
 	dispatcher.registerHandler(1002, [](const Message& message) {
-		std::cout << "收到消息：" << message.data << std::endl;
-	});
+		std::cout << "�յ���Ϣ��" << message.data << std::endl;
+		});
 
 	Message loginMessage{ 1001,"player1" };
 	Message chatMessage{ 1002,"Hello World!" };

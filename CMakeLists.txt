@@ -12,7 +12,7 @@ endif()
 project ("GameServer")
 
 # 将源代码添加到此项目的可执行文件。
-add_executable (GameServer "GameServer.cpp" "GameServer.h"   "include/Message.h" "include/Dispatcher.h" "src/Dispatcher.cpp" "include/LoginHandler.h" "src/LoginHandler.cpp" "include/Player.h" "src/Player.cpp")
+add_executable (GameServer     "include/Message.h" "include/Dispatcher.h" "src/Dispatcher.cpp" "include/LoginHandler.h" "src/LoginHandler.cpp" "include/Player.h" "src/Player.cpp" "src/main.cpp" "src/main.cpp")
 target_include_directories(GameServer PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 )
