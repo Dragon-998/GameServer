@@ -1,5 +1,9 @@
 #include "Session.h"
 
+#include "PacketCodec.h"
+
+#include <array>
+
 #ifdef _WIN32
 #include <winsock2.h>
 #else
@@ -25,13 +29,15 @@ Session::~Session() {
     close();
 }
 
-int Session::Recv(char* buffer, int bufferSize) {
-    if (!connected_ || socket_ == kInvalidSocket || buffer == nullptr ||
-        bufferSize <= 0) {
+int Session::Recv(PacketCodec& packetCodec) {
+    if (!connected_ || socket_ == kInvalidSocket) {
         return -1;
     }
 
-    const int bytesReceived = recv(socket_, buffer, bufferSize, 0);
+    std::array<std::uint8_t, 4096> buffer{};
+    const int bytesReceived = recv(
+        socket_, reinterpret_cast<char*>(buffer.data()),
+        static_cast<int>(buffer.size()), 0);
     if (bytesReceived == 0) {
         close();
         return 0;
@@ -42,6 +48,7 @@ int Session::Recv(char* buffer, int bufferSize) {
         return -1;
     }
 
+    packetCodec.append(buffer.data(), static_cast<std::size_t>(bytesReceived));
     return bytesReceived;
 }
 

@@ -6,6 +6,7 @@ add_executable(MiniGameServer
     src/main.cpp
     src/TcpServer.cpp
     src/Session.cpp
+    src/PacketCodec.cpp
 )
 
 target_compile_features(MiniGameServer PRIVATE cxx_std_17)

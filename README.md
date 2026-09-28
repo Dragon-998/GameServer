@@ -2,7 +2,7 @@
 
 用于学习游戏服务端开发的 C++17 项目。
 
-当前阶段实现最基础的 TCP 连接和 Session 创建流程：创建监听 Socket，绑定 `0.0.0.0:9000`，开始监听并接受一个客户端连接，然后为客户端 Socket 创建一个 Session。连接成功后，按回车即可退出。
+当前阶段实现 TCP 字节流到 Packet 的最小解析流程：创建监听 Socket，绑定 `0.0.0.0:9000`，接受一个客户端连接，为它创建 Session，再由 PacketCodec 处理半包和粘包。
 
 ## 构建
 
@@ -17,4 +17,6 @@ Windows 使用 Visual Studio 生成器时，程序通常位于：
 .\build\Debug\MiniGameServer.exe
 ```
 
-当前尚未实现 `recv`、`send`、SessionManager、PacketCodec、Dispatcher、Handler、多客户端并发或业务逻辑。
+当前协议格式为 `[length(uint32)][protocolId(uint16)][data]`，长度字段表示 data 的字节数，字段使用网络字节序。
+
+当前尚未实现 Dispatcher、Handler、SessionManager、多客户端并发或业务逻辑。

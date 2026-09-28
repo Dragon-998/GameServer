@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <string>
 
+class PacketCodec;
+
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -26,7 +28,7 @@ public:
     Session(const Session&) = delete;
     Session& operator=(const Session&) = delete;
 
-    int Recv(char* buffer, int bufferSize);
+    int Recv(PacketCodec& packetCodec);
     int Send(const std::string& message);
     void close() noexcept;
 

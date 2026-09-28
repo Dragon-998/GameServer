@@ -1,7 +1,11 @@
 #include "TcpServer.h"
 
+#include "PacketCodec.h"
+
 #include <exception>
 #include <iostream>
+#include <string>
+#include <vector>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -28,16 +32,20 @@ int main() {
         server.start();
 
         Session* session = server.session();
+        PacketCodec packetCodec;
         if (session != nullptr && session->connected()) {
-            char buffer[1024]{};
-            const int bytesReceived = session->Recv(buffer, sizeof(buffer) - 1);
-            if (bytesReceived > 0) {
-                buffer[bytesReceived] = '\0';
-                std::cout << "Received: " << buffer << std::endl;
+            while (session->connected()) {
+                const int bytesReceived = session->Recv(packetCodec);
+                if (bytesReceived <= 0) {
+                    break;
+                }
 
-                const int bytesSent = session->Send("server received hello");
-                if (bytesSent < 0) {
-                    std::cerr << "发送失败" << std::endl;
+                const std::vector<Packet> packets = packetCodec.decode();
+                for (const Packet& packet : packets) {
+                    const std::string text(packet.data.begin(),
+                                           packet.data.end());
+                    std::cout << "protocolId: " << packet.protocolId << '\n'
+                              << "data: " << text << std::endl;
                 }
             }
         }
