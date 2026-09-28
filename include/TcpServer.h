@@ -1,17 +1,9 @@
 #pragma once
 
-#ifdef _WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <winsock2.h>
-#else
-using socket_type = int;
-constexpr socket_type invalid_socket = -1;
-#endif
+#include "Session.h"
+
+#include <cstdint>
+#include <memory>
 
 class TcpServer {
 public:
@@ -25,11 +17,8 @@ public:
     void stop();
 
 private:
-#ifdef _WIN32
-    SOCKET server_fd_{INVALID_SOCKET};
-    SOCKET client_fd_{INVALID_SOCKET};
-#else
-    socket_type server_fd_{invalid_socket};
-    socket_type client_fd_{invalid_socket};
-#endif
+    SocketHandle server_fd_{kInvalidSocket};
+    SocketHandle client_fd_{kInvalidSocket};
+    std::unique_ptr<Session> session_;
+    std::uint64_t nextSessionId_{1};
 };

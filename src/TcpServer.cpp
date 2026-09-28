@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 
@@ -20,15 +21,7 @@ namespace {
 
 constexpr std::uint16_t kServerPort = 9000;
 
-#ifdef _WIN32
-using socket_type = SOCKET;
-constexpr socket_type invalid_socket = INVALID_SOCKET;
-#else
-using socket_type = int;
-constexpr socket_type invalid_socket = -1;
-#endif
-
-void closeSocket(socket_type socket) noexcept {
+void closeSocket(SocketHandle socket) noexcept {
 #ifdef _WIN32
     closesocket(socket);
 #else
@@ -75,12 +68,12 @@ TcpServer::~TcpServer() {
 }
 
 void TcpServer::start() {
-    if (server_fd_ != invalid_socket) {
+    if (server_fd_ != kInvalidSocket) {
         throw std::runtime_error("server is already started");
     }
 
     server_fd_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (server_fd_ == invalid_socket) {
+    if (server_fd_ == kInvalidSocket) {
         throw socketError("socket");
     }
 
@@ -121,11 +114,17 @@ void TcpServer::start() {
         client_fd_ = accept(server_fd_,
                             reinterpret_cast<sockaddr*>(&clientAddressValue),
                             &clientAddressLength);
-        if (client_fd_ == invalid_socket) {
+        if (client_fd_ == kInvalidSocket) {
             throw socketError("accept");
         }
 
         std::cout << "客户端已连接: " << clientAddress(clientAddressValue)
+                  << std::endl;
+
+        session_ = std::make_unique<Session>(client_fd_, nextSessionId_++);
+        client_fd_ = kInvalidSocket;
+
+        std::cout << "Session 创建成功，sessionId=" << session_->sessionId()
                   << std::endl;
     } catch (...) {
         stop();
@@ -134,20 +133,26 @@ void TcpServer::start() {
 }
 
 void TcpServer::stop() {
-    const bool hadSocket = client_fd_ != invalid_socket ||
-                           server_fd_ != invalid_socket;
+    const bool hadResource = session_ != nullptr ||
+                             client_fd_ != kInvalidSocket ||
+                             server_fd_ != kInvalidSocket;
 
-    if (client_fd_ != invalid_socket) {
+    if (session_ != nullptr) {
+        session_->close();
+        session_.reset();
+    }
+
+    if (client_fd_ != kInvalidSocket) {
         closeSocket(client_fd_);
-        client_fd_ = invalid_socket;
+        client_fd_ = kInvalidSocket;
     }
 
-    if (server_fd_ != invalid_socket) {
+    if (server_fd_ != kInvalidSocket) {
         closeSocket(server_fd_);
-        server_fd_ = invalid_socket;
+        server_fd_ = kInvalidSocket;
     }
 
-    if (hadSocket) {
+    if (hadResource) {
         std::cout << "服务器停止" << std::endl;
     }
 }
