@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -25,6 +26,8 @@ public:
     Session(const Session&) = delete;
     Session& operator=(const Session&) = delete;
 
+    int Recv(char* buffer, int bufferSize);
+    int Send(const std::string& message);
     void close() noexcept;
 
     [[nodiscard]] SocketHandle socket() const noexcept;

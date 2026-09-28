@@ -27,6 +27,21 @@ int main() {
 
         server.start();
 
+        Session* session = server.session();
+        if (session != nullptr && session->connected()) {
+            char buffer[1024]{};
+            const int bytesReceived = session->Recv(buffer, sizeof(buffer) - 1);
+            if (bytesReceived > 0) {
+                buffer[bytesReceived] = '\0';
+                std::cout << "Received: " << buffer << std::endl;
+
+                const int bytesSent = session->Send("server received hello");
+                if (bytesSent < 0) {
+                    std::cerr << "发送失败" << std::endl;
+                }
+            }
+        }
+
         std::cout << "客户端连接后，按回车退出" << std::endl;
         std::cin.get();
 

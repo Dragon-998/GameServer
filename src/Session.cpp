@@ -25,6 +25,41 @@ Session::~Session() {
     close();
 }
 
+int Session::Recv(char* buffer, int bufferSize) {
+    if (!connected_ || socket_ == kInvalidSocket || buffer == nullptr ||
+        bufferSize <= 0) {
+        return -1;
+    }
+
+    const int bytesReceived = recv(socket_, buffer, bufferSize, 0);
+    if (bytesReceived == 0) {
+        close();
+        return 0;
+    }
+
+    if (bytesReceived < 0) {
+        close();
+        return -1;
+    }
+
+    return bytesReceived;
+}
+
+int Session::Send(const std::string& message) {
+    if (!connected_ || socket_ == kInvalidSocket || message.empty()) {
+        return message.empty() ? 0 : -1;
+    }
+
+    const int bytesSent = send(socket_, message.data(),
+                               static_cast<int>(message.size()), 0);
+    if (bytesSent < 0) {
+        close();
+        return -1;
+    }
+
+    return bytesSent;
+}
+
 void Session::close() noexcept {
     if (!connected_) {
         return;

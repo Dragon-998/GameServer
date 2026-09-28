@@ -156,3 +156,7 @@ void TcpServer::stop() {
         std::cout << "服务器停止" << std::endl;
     }
 }
+
+Session* TcpServer::session() noexcept {
+    return session_.get();
+}

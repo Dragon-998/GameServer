@@ -16,6 +16,8 @@ public:
     void start();
     void stop();
 
+    [[nodiscard]] Session* session() noexcept;
+
 private:
     SocketHandle server_fd_{kInvalidSocket};
     SocketHandle client_fd_{kInvalidSocket};
