@@ -18,7 +18,7 @@ Dispatcher::Dispatcher(PlayerManager& playerManager,
                       std::make_unique<LoginHandler>(playerManager,
                                                      playerStorage, world));
     handlers_.emplace(static_cast<std::uint16_t>(ProtocolId::Move),
-                      std::make_unique<MoveHandler>());
+                      std::make_unique<MoveHandler>(playerManager, world));
     handlers_.emplace(static_cast<std::uint16_t>(ProtocolId::Fight),
                       std::make_unique<FightHandler>());
 }
