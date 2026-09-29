@@ -7,15 +7,16 @@
 #include "PlayerStorage.h"
 #include "ProtocolId.h"
 #include "Session.h"
+#include "World.h"
 
 #include <iostream>
 #include <utility>
 
 Dispatcher::Dispatcher(PlayerManager& playerManager,
-                       PlayerStorage& playerStorage) {
+                       PlayerStorage& playerStorage, World& world) {
     handlers_.emplace(static_cast<std::uint16_t>(ProtocolId::Login),
                       std::make_unique<LoginHandler>(playerManager,
-                                                     playerStorage));
+                                                     playerStorage, world));
     handlers_.emplace(static_cast<std::uint16_t>(ProtocolId::Move),
                       std::make_unique<MoveHandler>());
     handlers_.emplace(static_cast<std::uint16_t>(ProtocolId::Fight),

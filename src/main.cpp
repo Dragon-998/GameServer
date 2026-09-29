@@ -4,6 +4,7 @@
 #include "PacketCodec.h"
 #include "PlayerManager.h"
 #include "PlayerStorage.h"
+#include "World.h"
 
 #include <exception>
 #include <iostream>
@@ -31,7 +32,8 @@ int main() {
     try {
         PlayerStorage playerStorage("data/players.db");
         PlayerManager playerManager;
-        Dispatcher dispatcher(playerManager, playerStorage);
+        World world;
+        Dispatcher dispatcher(playerManager, playerStorage, world);
         TcpServer server;
 
         server.start();

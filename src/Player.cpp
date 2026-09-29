@@ -16,3 +16,11 @@ const std::string& Player::name() const noexcept {
 void Player::setName(std::string name) {
     name_ = std::move(name);
 }
+
+const std::optional<EntityLocation>& Player::entityLocation() const noexcept {
+    return entityLocation_;
+}
+
+void Player::setEntityLocation(EntityLocation location) noexcept {
+    entityLocation_ = location;
+}

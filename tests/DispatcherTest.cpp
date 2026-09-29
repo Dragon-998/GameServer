@@ -4,6 +4,7 @@
 #include "PlayerStorage.h"
 #include "ProtocolId.h"
 #include "Session.h"
+#include "World.h"
 
 #include <cstdint>
 #include <iostream>
@@ -81,7 +82,8 @@ int main() {
 
     PlayerManager loginPlayerManager;
     PlayerStorage playerStorage(":memory:");
-    Dispatcher dispatcher(loginPlayerManager, playerStorage);
+    World world;
+    Dispatcher dispatcher(loginPlayerManager, playerStorage, world);
     Session session(kInvalidSocket, 1);
 
     if (session.hasPlayer() || session.playerId().has_value()) {
@@ -115,6 +117,15 @@ int main() {
         player == nullptr || player->name() != "test" ||
         !loginPlayerManager.hasPlayer(10001)) {
         std::cerr << "Successful login did not bind Player 10001."
+                  << std::endl;
+        return 1;
+    }
+
+    const auto& entityLocation = player->entityLocation();
+    if (!entityLocation.has_value() ||
+        entityLocation->mapId != World::defaultMapId ||
+        world.findPlayerEntity(*player) == nullptr) {
+        std::cerr << "Successful login did not place Player 10001 in the World."
                   << std::endl;
         return 1;
     }

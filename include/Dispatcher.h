@@ -9,10 +9,12 @@
 class Session;
 class PlayerManager;
 class PlayerStorage;
+class World;
 
 class Dispatcher {
 public:
-    Dispatcher(PlayerManager& playerManager, PlayerStorage& playerStorage);
+    Dispatcher(PlayerManager& playerManager, PlayerStorage& playerStorage,
+               World& world);
 
     void dispatch(const Packet& packet, Session& session) const;
 
