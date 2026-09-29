@@ -18,9 +18,14 @@ add_executable(MiniGameServer
     src/PlayerManager.cpp
     src/PlayerStorage.cpp
     src/Entity.cpp
+    src/DummyEnemy.cpp
     src/PlayerEntity.cpp
     src/Map.cpp
     src/World.cpp
+    src/Warrior.cpp
+    src/BasicAttackSkill.cpp
+    src/BattleReport.cpp
+    src/Battle.cpp
     src/Dispatcher.cpp
     src/LoginHandler.cpp
     src/MoveHandler.cpp
@@ -56,9 +61,14 @@ add_executable(DispatcherTest
     src/PlayerManager.cpp
     src/PlayerStorage.cpp
     src/Entity.cpp
+    src/DummyEnemy.cpp
     src/PlayerEntity.cpp
     src/Map.cpp
     src/World.cpp
+    src/Warrior.cpp
+    src/BasicAttackSkill.cpp
+    src/BattleReport.cpp
+    src/Battle.cpp
     src/Session.cpp
 )
 target_compile_features(DispatcherTest PRIVATE cxx_std_17)
@@ -85,9 +95,21 @@ add_executable(WorldTest
     src/Entity.cpp
     src/Player.cpp
     src/PlayerEntity.cpp
+    src/DummyEnemy.cpp
     src/Map.cpp
     src/World.cpp
 )
 target_compile_features(WorldTest PRIVATE cxx_std_17)
 target_include_directories(WorldTest PRIVATE include)
 add_test(NAME WorldTest COMMAND WorldTest)
+
+add_executable(BattleTest
+    tests/BattleTest.cpp
+    src/Warrior.cpp
+    src/BasicAttackSkill.cpp
+    src/BattleReport.cpp
+    src/Battle.cpp
+)
+target_compile_features(BattleTest PRIVATE cxx_std_17)
+target_include_directories(BattleTest PRIVATE include)
+add_test(NAME BattleTest COMMAND BattleTest)
