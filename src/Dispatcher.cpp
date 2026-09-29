@@ -20,7 +20,7 @@ Dispatcher::Dispatcher(PlayerManager& playerManager,
     handlers_.emplace(static_cast<std::uint16_t>(ProtocolId::Move),
                       std::make_unique<MoveHandler>(playerManager, world));
     handlers_.emplace(static_cast<std::uint16_t>(ProtocolId::Fight),
-                      std::make_unique<FightHandler>());
+                      std::make_unique<FightHandler>(playerManager, world));
 }
 
 void Dispatcher::dispatch(const Packet& packet, Session& session) const {

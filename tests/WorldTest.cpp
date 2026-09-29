@@ -1,4 +1,5 @@
 #include "Entity.h"
+#include "DummyEnemy.h"
 #include "Map.h"
 #include "Player.h"
 #include "PlayerEntity.h"
@@ -24,6 +25,13 @@ int main() {
         return 1;
     }
 
+    auto* dummyEnemy = dynamic_cast<DummyEnemy*>(map->getEntity(1));
+    if (!verify(dummyEnemy != nullptr && dummyEnemy->x() == 1 &&
+                    dummyEnemy->y() == 0,
+                "World should create one training DummyEnemy.")) {
+        return 1;
+    }
+
     Player player(10001, "test");
     if (!verify(!player.entityLocation().has_value(),
                 "A new Player should not have an EntityLocation.") ||
@@ -34,7 +42,7 @@ int main() {
     const auto& location = player.entityLocation();
     if (!verify(location.has_value() &&
                     location->mapId == World::defaultMapId &&
-                    location->entityId == EntityId{1},
+                    location->entityId == EntityId{2},
                 "Player did not save its Map and Entity IDs.")) {
         return 1;
     }

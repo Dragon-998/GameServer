@@ -8,4 +8,5 @@ enum class ProtocolId : std::uint16_t {
     Fight = 1003,
     LoginResponse = 2001,
     MoveResponse = 2002,
+    FightResponse = 2003,
 };

@@ -1,5 +1,6 @@
 #include "World.h"
 
+#include "DummyEnemy.h"
 #include "Entity.h"
 #include "Map.h"
 #include "Player.h"
@@ -11,7 +12,15 @@
 #include <utility>
 
 World::World() {
-    static_cast<void>(createMap(defaultMapId));
+    Map* map = createMap(defaultMapId);
+    if (map != nullptr) {
+        const EntityId entityId = map->generateEntityId();
+        auto dummyEnemy = std::make_unique<DummyEnemy>(entityId, 1, 0);
+        if (map->addEntity(std::move(dummyEnemy)) != nullptr) {
+            std::cout << "Created training DummyEnemy " << entityId
+                      << " at (1, 0)" << std::endl;
+        }
+    }
 }
 
 World::~World() = default;
