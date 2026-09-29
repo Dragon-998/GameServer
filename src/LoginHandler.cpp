@@ -7,6 +7,7 @@
 #include "PlayerStorage.h"
 #include "ProtocolId.h"
 #include "Session.h"
+#include "World.h"
 
 #include <iostream>
 #include <memory>
@@ -61,8 +62,9 @@ Packet makeLoginResponsePacket(const LoginResponse& response) {
 }  // namespace
 
 LoginHandler::LoginHandler(PlayerManager& playerManager,
-                           PlayerStorage& playerStorage)
-    : playerManager_(playerManager), playerStorage_(playerStorage) {}
+                           PlayerStorage& playerStorage, World& world)
+    : playerManager_(playerManager), playerStorage_(playerStorage),
+      world_(world) {}
 
 void LoginHandler::handle(const Packet& packet, Session& session) {
     std::cout << "LoginHandler received packet" << std::endl;
@@ -102,12 +104,17 @@ void LoginHandler::handle(const Packet& packet, Session& session) {
             }
 
             if (player != nullptr && session.bindPlayer(player->playerId())) {
-                response.success = true;
-                response.message = "login success";
-                std::cout << "Login success" << std::endl;
-                std::cout << "Session " << session.sessionId()
-                          << " bound to Player " << player->playerId()
-                          << std::endl;
+                if (world_.enterWorld(*player)) {
+                    response.success = true;
+                    response.message = "login success";
+                    std::cout << "Login success" << std::endl;
+                    std::cout << "Session " << session.sessionId()
+                              << " bound to Player " << player->playerId()
+                              << std::endl;
+                } else {
+                    response.success = false;
+                    response.message = "failed to enter world";
+                }
             } else {
                 response.success = false;
                 response.message = "player unavailable for this session";
