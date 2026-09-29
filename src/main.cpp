@@ -2,6 +2,7 @@
 
 #include "Dispatcher.h"
 #include "PacketCodec.h"
+#include "PlayerManager.h"
 
 #include <exception>
 #include <iostream>
@@ -33,8 +34,12 @@ int main() {
 
         Session* session = server.session();
         PacketCodec packetCodec;
-        Dispatcher dispatcher;
+        PlayerManager playerManager;
+        Dispatcher dispatcher(playerManager);
         if (session != nullptr && session->connected()) {
+            std::cout << "Session " << session->sessionId()
+                      << " hasPlayer=" << std::boolalpha << session->hasPlayer()
+                      << std::endl;
             while (session->connected()) {
                 const int bytesReceived = session->Recv(packetCodec);
                 if (bytesReceived <= 0) {

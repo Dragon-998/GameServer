@@ -2,6 +2,8 @@
 
 #include "LoginMessage.h"
 #include "PacketCodec.h"
+#include "Player.h"
+#include "PlayerManager.h"
 #include "ProtocolId.h"
 #include "Session.h"
 
@@ -54,6 +56,9 @@ Packet makeLoginResponsePacket(const LoginResponse& response) {
 
 }  // namespace
 
+LoginHandler::LoginHandler(PlayerManager& playerManager)
+    : playerManager_(playerManager) {}
+
 void LoginHandler::handle(const Packet& packet, Session& session) {
     std::cout << "LoginHandler received packet" << std::endl;
 
@@ -64,8 +69,23 @@ void LoginHandler::handle(const Packet& packet, Session& session) {
         response.success = false;
         response.message = "invalid request format";
     } else if (request.username == "test" && request.password == "123456") {
-        response.success = true;
-        response.message = "login success";
+        if (session.hasPlayer()) {
+            response.success = false;
+            response.message = "session already bound to a player";
+        } else {
+            Player& player = playerManager_.getOrCreate(10001, request.username);
+            if (session.bindPlayer(player.playerId())) {
+                response.success = true;
+                response.message = "login success";
+                std::cout << "Login success" << std::endl;
+                std::cout << "Session " << session.sessionId()
+                          << " bound to Player " << player.playerId()
+                          << std::endl;
+            } else {
+                response.success = false;
+                response.message = "session cannot be bound to a player";
+            }
+        }
     } else {
         response.success = false;
         response.message = "login failed";

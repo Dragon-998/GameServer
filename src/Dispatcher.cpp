@@ -3,15 +3,16 @@
 #include "FightHandler.h"
 #include "LoginHandler.h"
 #include "MoveHandler.h"
+#include "PlayerManager.h"
 #include "ProtocolId.h"
 #include "Session.h"
 
 #include <iostream>
 #include <utility>
 
-Dispatcher::Dispatcher() {
+Dispatcher::Dispatcher(PlayerManager& playerManager) {
     handlers_.emplace(static_cast<std::uint16_t>(ProtocolId::Login),
-                      std::make_unique<LoginHandler>());
+                      std::make_unique<LoginHandler>(playerManager));
     handlers_.emplace(static_cast<std::uint16_t>(ProtocolId::Move),
                       std::make_unique<MoveHandler>());
     handlers_.emplace(static_cast<std::uint16_t>(ProtocolId::Fight),

@@ -1,5 +1,6 @@
 #include "Dispatcher.h"
 
+#include "PlayerManager.h"
 #include "ProtocolId.h"
 #include "Session.h"
 
@@ -17,9 +18,12 @@ bool dispatchPrints(Dispatcher& dispatcher, Session& session,
     packet.protocolId = protocolId;
 
     std::ostringstream capturedOutput;
+    std::ostringstream capturedError;
     std::streambuf* originalOutput = std::cout.rdbuf(capturedOutput.rdbuf());
+    std::streambuf* originalError = std::cerr.rdbuf(capturedError.rdbuf());
     dispatcher.dispatch(packet, session);
     std::cout.rdbuf(originalOutput);
+    std::cerr.rdbuf(originalError);
 
     if (capturedOutput.str() != expectedOutput) {
         std::cerr << "Protocol " << protocolId << " produced unexpected output."
@@ -31,11 +35,32 @@ bool dispatchPrints(Dispatcher& dispatcher, Session& session,
     return true;
 }
 
+void dispatchLogin(Dispatcher& dispatcher, Session& session,
+                   const std::string& request) {
+    Packet packet;
+    packet.protocolId = static_cast<std::uint16_t>(ProtocolId::Login);
+    packet.data.assign(request.begin(), request.end());
+
+    std::ostringstream capturedOutput;
+    std::streambuf* originalOutput = std::cout.rdbuf(capturedOutput.rdbuf());
+    std::streambuf* originalError = std::cerr.rdbuf(capturedOutput.rdbuf());
+    dispatcher.dispatch(packet, session);
+    std::cout.rdbuf(originalOutput);
+    std::cerr.rdbuf(originalError);
+}
+
 }  // namespace
 
 int main() {
-    Dispatcher dispatcher;
+    PlayerManager playerManager;
+    Dispatcher dispatcher(playerManager);
     Session session(kInvalidSocket, 1);
+
+    if (session.hasPlayer() || session.playerId().has_value()) {
+        std::cerr << "A new Session should not be bound to a Player."
+                  << std::endl;
+        return 1;
+    }
 
     const bool loginWorks = dispatchPrints(
         dispatcher, session, static_cast<std::uint16_t>(ProtocolId::Login),
@@ -53,6 +78,34 @@ int main() {
         return 1;
     }
 
-    std::cout << "Dispatcher tests passed." << std::endl;
+    Session successfulLoginSession(kInvalidSocket, 2);
+    dispatchLogin(dispatcher, successfulLoginSession,
+                  "username=test&password=123456");
+    const Player* player = playerManager.find(10001);
+    if (!successfulLoginSession.hasPlayer() ||
+        successfulLoginSession.playerId() != PlayerId{10001} ||
+        player == nullptr || player->name() != "test") {
+        std::cerr << "Successful login did not bind Player 10001."
+                  << std::endl;
+        return 1;
+    }
+
+    Session failedLoginSession(kInvalidSocket, 3);
+    dispatchLogin(dispatcher, failedLoginSession,
+                  "username=test&password=wrong");
+    if (failedLoginSession.hasPlayer() ||
+        failedLoginSession.playerId().has_value()) {
+        std::cerr << "Failed login should not bind a Player." << std::endl;
+        return 1;
+    }
+
+    Session malformedLoginSession(kInvalidSocket, 4);
+    dispatchLogin(dispatcher, malformedLoginSession, "invalid request");
+    if (malformedLoginSession.hasPlayer()) {
+        std::cerr << "Malformed login should not bind a Player." << std::endl;
+        return 1;
+    }
+
+    std::cout << "Dispatcher and Player binding tests passed." << std::endl;
     return 0;
 }

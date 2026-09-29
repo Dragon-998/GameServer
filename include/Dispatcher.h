@@ -7,10 +7,11 @@
 #include <unordered_map>
 
 class Session;
+class PlayerManager;
 
 class Dispatcher {
 public:
-    Dispatcher();
+    explicit Dispatcher(PlayerManager& playerManager);
 
     void dispatch(const Packet& packet, Session& session) const;
 

@@ -7,6 +7,8 @@ add_executable(MiniGameServer
     src/TcpServer.cpp
     src/Session.cpp
     src/PacketCodec.cpp
+    src/Player.cpp
+    src/PlayerManager.cpp
     src/Dispatcher.cpp
     src/LoginHandler.cpp
     src/MoveHandler.cpp
@@ -36,6 +38,8 @@ add_executable(DispatcherTest
     src/MoveHandler.cpp
     src/FightHandler.cpp
     src/PacketCodec.cpp
+    src/Player.cpp
+    src/PlayerManager.cpp
     src/Session.cpp
 )
 target_compile_features(DispatcherTest PRIVATE cxx_std_17)

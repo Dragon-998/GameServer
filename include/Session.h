@@ -1,6 +1,9 @@
 #pragma once
 
+#include "PlayerId.h"
+
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 class PacketCodec;
@@ -31,13 +34,17 @@ public:
     int Recv(PacketCodec& packetCodec);
     int Send(const std::vector<std::uint8_t>& bytes);
     void close() noexcept;
+    bool bindPlayer(PlayerId playerId) noexcept;
 
     [[nodiscard]] SocketHandle socket() const noexcept;
     [[nodiscard]] std::uint64_t sessionId() const noexcept;
     [[nodiscard]] bool connected() const noexcept;
+    [[nodiscard]] bool hasPlayer() const noexcept;
+    [[nodiscard]] std::optional<PlayerId> playerId() const noexcept;
 
 private:
     SocketHandle socket_{kInvalidSocket};
     std::uint64_t sessionId_{0};
     bool connected_{false};
+    std::optional<PlayerId> playerId_;
 };

@@ -100,6 +100,15 @@ void Session::close() noexcept {
     connected_ = false;
 }
 
+bool Session::bindPlayer(PlayerId playerId) noexcept {
+    if (!connected_ || playerId_.has_value()) {
+        return false;
+    }
+
+    playerId_ = playerId;
+    return true;
+}
+
 SocketHandle Session::socket() const noexcept {
     return socket_;
 }
@@ -110,4 +119,12 @@ std::uint64_t Session::sessionId() const noexcept {
 
 bool Session::connected() const noexcept {
     return connected_;
+}
+
+bool Session::hasPlayer() const noexcept {
+    return playerId_.has_value();
+}
+
+std::optional<PlayerId> Session::playerId() const noexcept {
+    return playerId_;
 }
