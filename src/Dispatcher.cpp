@@ -4,6 +4,7 @@
 #include "LoginHandler.h"
 #include "MoveHandler.h"
 #include "ProtocolId.h"
+#include "Session.h"
 
 #include <iostream>
 #include <utility>
@@ -17,12 +18,12 @@ Dispatcher::Dispatcher() {
                       std::make_unique<FightHandler>());
 }
 
-void Dispatcher::dispatch(const Packet& packet) const {
+void Dispatcher::dispatch(const Packet& packet, Session& session) const {
     const auto handler = handlers_.find(packet.protocolId);
     if (handler == handlers_.end()) {
         std::cout << "Unknown protocol id: " << packet.protocolId << std::endl;
         return;
     }
 
-    handler->second->handle(packet);
+    handler->second->handle(packet, session);
 }

@@ -43,7 +43,7 @@ int main() {
 
                 const std::vector<Packet> packets = packetCodec.decode();
                 for (const Packet& packet : packets) {
-                    dispatcher.dispatch(packet);
+                    dispatcher.dispatch(packet, *session);
                 }
             }
         }

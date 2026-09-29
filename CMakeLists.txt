@@ -35,7 +35,12 @@ add_executable(DispatcherTest
     src/LoginHandler.cpp
     src/MoveHandler.cpp
     src/FightHandler.cpp
+    src/PacketCodec.cpp
+    src/Session.cpp
 )
 target_compile_features(DispatcherTest PRIVATE cxx_std_17)
 target_include_directories(DispatcherTest PRIVATE include)
+if(WIN32)
+    target_link_libraries(DispatcherTest PRIVATE ws2_32)
+endif()
 add_test(NAME DispatcherTest COMMAND DispatcherTest)

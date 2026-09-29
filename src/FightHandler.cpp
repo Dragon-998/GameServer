@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-void FightHandler::handle(const Packet& packet) {
+void FightHandler::handle(const Packet& packet, Session& session) {
     (void)packet;
+    (void)session;
     std::cout << "FightHandler received packet" << std::endl;
 }

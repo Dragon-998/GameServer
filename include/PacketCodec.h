@@ -14,6 +14,7 @@ public:
 
     void append(const std::uint8_t* data, std::size_t size);
     [[nodiscard]] std::vector<Packet> decode();
+    [[nodiscard]] static std::vector<std::uint8_t> encode(const Packet& packet);
 
 private:
     std::vector<std::uint8_t> buffer_;

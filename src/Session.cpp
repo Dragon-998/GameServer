@@ -3,10 +3,12 @@
 #include "PacketCodec.h"
 
 #include <array>
+#include <limits>
 
 #ifdef _WIN32
 #include <winsock2.h>
 #else
+#include <sys/socket.h>
 #include <unistd.h>
 #endif
 
@@ -52,19 +54,37 @@ int Session::Recv(PacketCodec& packetCodec) {
     return bytesReceived;
 }
 
-int Session::Send(const std::string& message) {
-    if (!connected_ || socket_ == kInvalidSocket || message.empty()) {
-        return message.empty() ? 0 : -1;
-    }
-
-    const int bytesSent = send(socket_, message.data(),
-                               static_cast<int>(message.size()), 0);
-    if (bytesSent < 0) {
-        close();
+int Session::Send(const std::vector<std::uint8_t>& bytes) {
+    if (!connected_ || socket_ == kInvalidSocket) {
         return -1;
     }
 
-    return bytesSent;
+    if (bytes.empty()) {
+        return 0;
+    }
+
+    if (bytes.size() > static_cast<std::size_t>(
+                           std::numeric_limits<int>::max())) {
+        return -1;
+    }
+
+    std::size_t totalSent = 0;
+    while (totalSent < bytes.size()) {
+        int flags = 0;
+#ifdef MSG_NOSIGNAL
+        flags |= MSG_NOSIGNAL;
+#endif
+        const int bytesSent = send(
+            socket_, reinterpret_cast<const char*>(bytes.data() + totalSent),
+            static_cast<int>(bytes.size() - totalSent), flags);
+        if (bytesSent <= 0) {
+            close();
+            return -1;
+        }
+        totalSent += static_cast<std::size_t>(bytesSent);
+    }
+
+    return static_cast<int>(totalSent);
 }
 
 void Session::close() noexcept {

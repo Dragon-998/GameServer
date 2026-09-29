@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
+#include <vector>
 
 class PacketCodec;
 
@@ -29,7 +29,7 @@ public:
     Session& operator=(const Session&) = delete;
 
     int Recv(PacketCodec& packetCodec);
-    int Send(const std::string& message);
+    int Send(const std::vector<std::uint8_t>& bytes);
     void close() noexcept;
 
     [[nodiscard]] SocketHandle socket() const noexcept;

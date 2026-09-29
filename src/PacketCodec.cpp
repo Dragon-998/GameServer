@@ -1,5 +1,6 @@
 #include "PacketCodec.h"
 
+#include <limits>
 #include <stdexcept>
 #include <utility>
 
@@ -52,4 +53,25 @@ std::vector<Packet> PacketCodec::decode() {
     }
 
     return packets;
+}
+
+std::vector<std::uint8_t> PacketCodec::encode(const Packet& packet) {
+    if (packet.data.size() > maxDataSize ||
+        packet.data.size() > std::numeric_limits<std::uint32_t>::max()) {
+        throw std::runtime_error("Packet data is larger than 1 MiB");
+    }
+
+    const auto dataSize = static_cast<std::uint32_t>(packet.data.size());
+    std::vector<std::uint8_t> bytes;
+    bytes.reserve(headerSize + packet.data.size());
+
+    bytes.push_back(static_cast<std::uint8_t>((dataSize >> 24) & 0xFF));
+    bytes.push_back(static_cast<std::uint8_t>((dataSize >> 16) & 0xFF));
+    bytes.push_back(static_cast<std::uint8_t>((dataSize >> 8) & 0xFF));
+    bytes.push_back(static_cast<std::uint8_t>(dataSize & 0xFF));
+    bytes.push_back(static_cast<std::uint8_t>((packet.protocolId >> 8) & 0xFF));
+    bytes.push_back(static_cast<std::uint8_t>(packet.protocolId & 0xFF));
+    bytes.insert(bytes.end(), packet.data.begin(), packet.data.end());
+
+    return bytes;
 }
