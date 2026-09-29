@@ -7,6 +7,10 @@ add_executable(MiniGameServer
     src/TcpServer.cpp
     src/Session.cpp
     src/PacketCodec.cpp
+    src/Dispatcher.cpp
+    src/LoginHandler.cpp
+    src/MoveHandler.cpp
+    src/FightHandler.cpp
 )
 
 target_compile_features(MiniGameServer PRIVATE cxx_std_17)
@@ -22,3 +26,16 @@ if(MSVC)
 else()
     target_compile_options(MiniGameServer PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+enable_testing()
+
+add_executable(DispatcherTest
+    tests/DispatcherTest.cpp
+    src/Dispatcher.cpp
+    src/LoginHandler.cpp
+    src/MoveHandler.cpp
+    src/FightHandler.cpp
+)
+target_compile_features(DispatcherTest PRIVATE cxx_std_17)
+target_include_directories(DispatcherTest PRIVATE include)
+add_test(NAME DispatcherTest COMMAND DispatcherTest)

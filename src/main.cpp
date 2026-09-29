@@ -1,10 +1,10 @@
 #include "TcpServer.h"
 
+#include "Dispatcher.h"
 #include "PacketCodec.h"
 
 #include <exception>
 #include <iostream>
-#include <string>
 #include <vector>
 
 #ifdef _WIN32
@@ -33,6 +33,7 @@ int main() {
 
         Session* session = server.session();
         PacketCodec packetCodec;
+        Dispatcher dispatcher;
         if (session != nullptr && session->connected()) {
             while (session->connected()) {
                 const int bytesReceived = session->Recv(packetCodec);
@@ -42,10 +43,7 @@ int main() {
 
                 const std::vector<Packet> packets = packetCodec.decode();
                 for (const Packet& packet : packets) {
-                    const std::string text(packet.data.begin(),
-                                           packet.data.end());
-                    std::cout << "protocolId: " << packet.protocolId << '\n'
-                              << "data: " << text << std::endl;
+                    dispatcher.dispatch(packet);
                 }
             }
         }
