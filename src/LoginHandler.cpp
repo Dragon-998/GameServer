@@ -4,11 +4,15 @@
 #include "PacketCodec.h"
 #include "Player.h"
 #include "PlayerManager.h"
+#include "PlayerStorage.h"
 #include "ProtocolId.h"
 #include "Session.h"
 
 #include <iostream>
+#include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace {
 
@@ -56,8 +60,9 @@ Packet makeLoginResponsePacket(const LoginResponse& response) {
 
 }  // namespace
 
-LoginHandler::LoginHandler(PlayerManager& playerManager)
-    : playerManager_(playerManager) {}
+LoginHandler::LoginHandler(PlayerManager& playerManager,
+                           PlayerStorage& playerStorage)
+    : playerManager_(playerManager), playerStorage_(playerStorage) {}
 
 void LoginHandler::handle(const Packet& packet, Session& session) {
     std::cout << "LoginHandler received packet" << std::endl;
@@ -76,7 +81,24 @@ void LoginHandler::handle(const Packet& packet, Session& session) {
             constexpr PlayerId kTestPlayerId = 10001;
             Player* player = playerManager_.getPlayer(kTestPlayerId);
             if (player == nullptr) {
-                player = playerManager_.addPlayer(kTestPlayerId, request.username);
+                std::unique_ptr<Player> loadedPlayer =
+                    playerStorage_.load(kTestPlayerId);
+                if (loadedPlayer != nullptr) {
+                    player = playerManager_.addPlayer(std::move(loadedPlayer));
+                    if (player != nullptr) {
+                        std::cout << "Loaded Player " << player->playerId()
+                                  << " from SQLite" << std::endl;
+                    }
+                } else {
+                    player = playerManager_.addPlayer(kTestPlayerId,
+                                                      request.username);
+                    if (player != nullptr) {
+                        playerStorage_.save(*player);
+                        std::cout << "Created and saved Player "
+                                  << player->playerId() << " to SQLite"
+                                  << std::endl;
+                    }
+                }
             }
 
             if (player != nullptr && session.bindPlayer(player->playerId())) {

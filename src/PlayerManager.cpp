@@ -3,11 +3,15 @@
 #include <memory>
 
 Player* PlayerManager::addPlayer(PlayerId playerId, const std::string& name) {
-    if (hasPlayer(playerId)) {
+    return addPlayer(std::make_unique<Player>(playerId, name));
+}
+
+Player* PlayerManager::addPlayer(std::unique_ptr<Player> player) {
+    if (player == nullptr || hasPlayer(player->playerId())) {
         return nullptr;
     }
 
-    auto player = std::make_unique<Player>(playerId, name);
+    const PlayerId playerId = player->playerId();
     const auto [insertedPlayer, inserted] =
         players_.emplace(playerId, std::move(player));
     return inserted ? insertedPlayer->second.get() : nullptr;
