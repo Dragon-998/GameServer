@@ -8,10 +8,11 @@
 
 class Session;
 class PlayerManager;
+class PlayerStorage;
 
 class Dispatcher {
 public:
-    explicit Dispatcher(PlayerManager& playerManager);
+    Dispatcher(PlayerManager& playerManager, PlayerStorage& playerStorage);
 
     void dispatch(const Packet& packet, Session& session) const;
 

@@ -3,6 +3,7 @@
 #include "Dispatcher.h"
 #include "PacketCodec.h"
 #include "PlayerManager.h"
+#include "PlayerStorage.h"
 
 #include <exception>
 #include <iostream>
@@ -28,8 +29,9 @@ int main() {
     configureConsoleEncoding();
 
     try {
+        PlayerStorage playerStorage("data/players.db");
         PlayerManager playerManager;
-        Dispatcher dispatcher(playerManager);
+        Dispatcher dispatcher(playerManager, playerStorage);
         TcpServer server;
 
         server.start();

@@ -12,3 +12,7 @@ PlayerId Player::playerId() const noexcept {
 const std::string& Player::name() const noexcept {
     return name_;
 }
+
+void Player::setName(std::string name) {
+    name_ = std::move(name);
+}

@@ -10,6 +10,7 @@ public:
 
     [[nodiscard]] PlayerId playerId() const noexcept;
     [[nodiscard]] const std::string& name() const noexcept;
+    void setName(std::string name);
 
 private:
     PlayerId playerId_;

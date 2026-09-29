@@ -1,6 +1,7 @@
 #include "Dispatcher.h"
 
 #include "PlayerManager.h"
+#include "PlayerStorage.h"
 #include "ProtocolId.h"
 #include "Session.h"
 
@@ -79,7 +80,8 @@ int main() {
     }
 
     PlayerManager loginPlayerManager;
-    Dispatcher dispatcher(loginPlayerManager);
+    PlayerStorage playerStorage(":memory:");
+    Dispatcher dispatcher(loginPlayerManager, playerStorage);
     Session session(kInvalidSocket, 1);
 
     if (session.hasPlayer() || session.playerId().has_value()) {

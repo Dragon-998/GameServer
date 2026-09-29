@@ -10,6 +10,7 @@ class PlayerManager {
 public:
     [[nodiscard]] Player* addPlayer(PlayerId playerId,
                                     const std::string& name);
+    [[nodiscard]] Player* addPlayer(std::unique_ptr<Player> player);
 
     [[nodiscard]] Player* getPlayer(PlayerId playerId) noexcept;
     [[nodiscard]] const Player* getPlayer(PlayerId playerId) const noexcept;
