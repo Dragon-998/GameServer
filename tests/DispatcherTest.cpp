@@ -52,8 +52,34 @@ void dispatchLogin(Dispatcher& dispatcher, Session& session,
 }  // namespace
 
 int main() {
-    PlayerManager playerManager;
-    Dispatcher dispatcher(playerManager);
+    PlayerManager managerTest;
+    if (managerTest.hasPlayer(10001) ||
+        managerTest.getPlayer(10001) != nullptr) {
+        std::cerr << "PlayerManager should start empty." << std::endl;
+        return 1;
+    }
+
+    Player* addedPlayer = managerTest.addPlayer(10001, "test");
+    if (addedPlayer == nullptr || !managerTest.hasPlayer(10001) ||
+        managerTest.getPlayer(10001) != addedPlayer ||
+        addedPlayer->playerId() != PlayerId{10001} ||
+        addedPlayer->name() != "test") {
+        std::cerr << "PlayerManager failed to add or find a Player."
+                  << std::endl;
+        return 1;
+    }
+
+    if (managerTest.addPlayer(10001, "duplicate") != nullptr ||
+        managerTest.getPlayer(99999) != nullptr ||
+        managerTest.hasPlayer(99999)) {
+        std::cerr << "PlayerManager handled a duplicate or unknown ID "
+                     "incorrectly."
+                  << std::endl;
+        return 1;
+    }
+
+    PlayerManager loginPlayerManager;
+    Dispatcher dispatcher(loginPlayerManager);
     Session session(kInvalidSocket, 1);
 
     if (session.hasPlayer() || session.playerId().has_value()) {
@@ -81,10 +107,11 @@ int main() {
     Session successfulLoginSession(kInvalidSocket, 2);
     dispatchLogin(dispatcher, successfulLoginSession,
                   "username=test&password=123456");
-    const Player* player = playerManager.find(10001);
+    const Player* player = loginPlayerManager.getPlayer(10001);
     if (!successfulLoginSession.hasPlayer() ||
         successfulLoginSession.playerId() != PlayerId{10001} ||
-        player == nullptr || player->name() != "test") {
+        player == nullptr || player->name() != "test" ||
+        !loginPlayerManager.hasPlayer(10001)) {
         std::cerr << "Successful login did not bind Player 10001."
                   << std::endl;
         return 1;

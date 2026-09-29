@@ -8,10 +8,12 @@
 
 class PlayerManager {
 public:
-    Player& getOrCreate(PlayerId playerId, const std::string& name);
+    [[nodiscard]] Player* addPlayer(PlayerId playerId,
+                                    const std::string& name);
 
-    [[nodiscard]] Player* find(PlayerId playerId) noexcept;
-    [[nodiscard]] const Player* find(PlayerId playerId) const noexcept;
+    [[nodiscard]] Player* getPlayer(PlayerId playerId) noexcept;
+    [[nodiscard]] const Player* getPlayer(PlayerId playerId) const noexcept;
+    [[nodiscard]] bool hasPlayer(PlayerId playerId) const noexcept;
 
 private:
     std::unordered_map<PlayerId, std::unique_ptr<Player>> players_;

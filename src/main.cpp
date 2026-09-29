@@ -28,14 +28,14 @@ int main() {
     configureConsoleEncoding();
 
     try {
+        PlayerManager playerManager;
+        Dispatcher dispatcher(playerManager);
         TcpServer server;
 
         server.start();
 
         Session* session = server.session();
         PacketCodec packetCodec;
-        PlayerManager playerManager;
-        Dispatcher dispatcher(playerManager);
         if (session != nullptr && session->connected()) {
             std::cout << "Session " << session->sessionId()
                       << " hasPlayer=" << std::boolalpha << session->hasPlayer()

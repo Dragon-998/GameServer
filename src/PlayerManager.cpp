@@ -2,24 +2,27 @@
 
 #include <memory>
 
-Player& PlayerManager::getOrCreate(PlayerId playerId, const std::string& name) {
-    const auto existing = players_.find(playerId);
-    if (existing != players_.end()) {
-        return *existing->second;
+Player* PlayerManager::addPlayer(PlayerId playerId, const std::string& name) {
+    if (hasPlayer(playerId)) {
+        return nullptr;
     }
 
     auto player = std::make_unique<Player>(playerId, name);
-    Player& createdPlayer = *player;
-    players_.emplace(playerId, std::move(player));
-    return createdPlayer;
+    const auto [insertedPlayer, inserted] =
+        players_.emplace(playerId, std::move(player));
+    return inserted ? insertedPlayer->second.get() : nullptr;
 }
 
-Player* PlayerManager::find(PlayerId playerId) noexcept {
+Player* PlayerManager::getPlayer(PlayerId playerId) noexcept {
     const auto found = players_.find(playerId);
     return found == players_.end() ? nullptr : found->second.get();
 }
 
-const Player* PlayerManager::find(PlayerId playerId) const noexcept {
+const Player* PlayerManager::getPlayer(PlayerId playerId) const noexcept {
     const auto found = players_.find(playerId);
     return found == players_.end() ? nullptr : found->second.get();
+}
+
+bool PlayerManager::hasPlayer(PlayerId playerId) const noexcept {
+    return players_.find(playerId) != players_.end();
 }

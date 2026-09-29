@@ -73,17 +73,22 @@ void LoginHandler::handle(const Packet& packet, Session& session) {
             response.success = false;
             response.message = "session already bound to a player";
         } else {
-            Player& player = playerManager_.getOrCreate(10001, request.username);
-            if (session.bindPlayer(player.playerId())) {
+            constexpr PlayerId kTestPlayerId = 10001;
+            Player* player = playerManager_.getPlayer(kTestPlayerId);
+            if (player == nullptr) {
+                player = playerManager_.addPlayer(kTestPlayerId, request.username);
+            }
+
+            if (player != nullptr && session.bindPlayer(player->playerId())) {
                 response.success = true;
                 response.message = "login success";
                 std::cout << "Login success" << std::endl;
                 std::cout << "Session " << session.sessionId()
-                          << " bound to Player " << player.playerId()
+                          << " bound to Player " << player->playerId()
                           << std::endl;
             } else {
                 response.success = false;
-                response.message = "session cannot be bound to a player";
+                response.message = "player unavailable for this session";
             }
         }
     } else {
