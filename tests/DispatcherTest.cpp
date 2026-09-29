@@ -1,6 +1,7 @@
 #include "Dispatcher.h"
 
 #include "PlayerManager.h"
+#include "PlayerEntity.h"
 #include "PlayerStorage.h"
 #include "ProtocolId.h"
 #include "Session.h"
@@ -126,6 +127,45 @@ int main() {
         entityLocation->mapId != World::defaultMapId ||
         world.findPlayerEntity(*player) == nullptr) {
         std::cerr << "Successful login did not place Player 10001 in the World."
+                  << std::endl;
+        return 1;
+    }
+
+    Packet movePacket;
+    movePacket.protocolId = static_cast<std::uint16_t>(ProtocolId::Move);
+    const std::string moveRequest = "dx=1&dy=0";
+    movePacket.data.assign(moveRequest.begin(), moveRequest.end());
+    dispatcher.dispatch(movePacket, successfulLoginSession);
+
+    const PlayerEntity* movedEntity = world.findPlayerEntity(*player);
+    if (movedEntity == nullptr || movedEntity->x() != 1 ||
+        movedEntity->y() != 0) {
+        std::cerr << "MoveHandler did not move the logged-in PlayerEntity."
+                  << std::endl;
+        return 1;
+    }
+
+    Session unauthenticatedMoveSession(kInvalidSocket, 5);
+    dispatcher.dispatch(movePacket, unauthenticatedMoveSession);
+    movedEntity = world.findPlayerEntity(*player);
+    if (movedEntity == nullptr || movedEntity->x() != 1 ||
+        movedEntity->y() != 0) {
+        std::cerr << "An unauthenticated Session moved a PlayerEntity."
+                  << std::endl;
+        return 1;
+    }
+
+    Packet malformedMovePacket;
+    malformedMovePacket.protocolId =
+        static_cast<std::uint16_t>(ProtocolId::Move);
+    const std::string malformedMoveRequest = "dx=bad&dy=0";
+    malformedMovePacket.data.assign(malformedMoveRequest.begin(),
+                                     malformedMoveRequest.end());
+    dispatcher.dispatch(malformedMovePacket, successfulLoginSession);
+    movedEntity = world.findPlayerEntity(*player);
+    if (movedEntity == nullptr || movedEntity->x() != 1 ||
+        movedEntity->y() != 0) {
+        std::cerr << "A malformed movement request changed the position."
                   << std::endl;
         return 1;
     }

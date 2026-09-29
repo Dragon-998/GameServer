@@ -10,6 +10,7 @@ public:
     [[nodiscard]] EntityId entityId() const noexcept;
     [[nodiscard]] int x() const noexcept;
     [[nodiscard]] int y() const noexcept;
+    [[nodiscard]] bool moveBy(int dx, int dy) noexcept;
 
 private:
     EntityId entityId_;
